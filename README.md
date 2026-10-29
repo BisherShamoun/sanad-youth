@@ -1,118 +1,172 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Sanad Youth API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+واجهة خلفية (Backend API) لمنصة Sanad Youth لإدارة البرامج التدريبية وطلبات التسجيل والجلسات والمواد التعليمية والإعلانات، باستخدام NestJS وTypeScript وPrisma.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- JWT Authentication and Authorization.
+- Role-based access control: `USER`, `SUPERVISOR`, `ADMIN`.
+- Browse published programs, search, and pagination.
+- Create and update programs and training sessions.
+- Submit applications, track application status, and cancel applications.
+- Review applications by administrators.
+- Upload CVs and program materials.
+- Download program materials subject to access permissions.
+- Caching for frequently accessed program listings, when enabled.
+- File size and extension validation.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Technologies
 
-## Project setup
+- NestJS
+- TypeScript
+- Prisma ORM
+- PostgreSQL (حسب إعداد المشروع)
+- JWT, Guards, and Custom Decorators
+- Multer
+- Postman
 
-```bash
-$ npm install
+## Installation
+
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+
+
+3. Generate the Prisma client and apply migrations according to the Prisma version and configuration used by the project.
+
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev
+   ```
+
+   If the project uses Prisma 7 or a custom Prisma configuration, follow its specific setup instructions.
+
+4. Start the development server:
+
+   ```bash
+   npm run start:dev
+   ```
+
+The default local URL is usually `http://localhost:3000`. If a global prefix such as `api` is configured in `main.ts`, include it in the request URLs.
+
+## User Roles
+
+| Role | Responsibilities |
+|---|---|
+| `USER` | Browse programs, submit applications, track and cancel personal applications. |
+| `SUPERVISOR` | Manage assigned programs, sessions, and materials according to permissions. |
+| `ADMIN` | Review applications and manage platform resources according to permissions. |
+
+## API Endpoints
+
+The routes below are based on the controllers shared during development. Verify them against the actual controllers and DTOs.
+
+### Authentication
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/auth/register` | Register a user; verify the DTO fields. |
+| POST | `/auth/login` | Authenticate a user; verify the login DTO fields. |
+
+### Programs
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/programs` | List published programs with search and pagination. |
+| GET | `/programs/:programId` | Get a published program. |
+| POST | `/programs` | Create a program. |
+| PATCH | `/programs/:programId` | Update a program according to permissions. |
+| POST | `/programs/:programId/sessions` | Suggested route for adding a session; verify the actual controller. |
+
+Example query parameters:
+
+```text
+?page=1&limit=10&search=backend&sortBy=createdAt&sortOrder=desc
 ```
 
-## Compile and run the project
+### Applications
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/applications/:programId` | Apply to a program; `cv` is optional in the shared controller. |
+| GET | `/applications/mine` | List the current user's applications. |
+| PATCH | `/applications/:id/cancel` | Cancel an application. |
+| GET | `/applications/program/:programId` | List applications for a program, subject to permissions. |
+| PATCH | `/applications/:id/review` | Review an application; restricted to `ADMIN` in the shared controller. |
+
+Check `ReviewApplicationDto` for the exact fields and accepted status values.
+
+### Materials
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/programs/:programId/materials` | List program materials. |
+| POST | `/programs/:programId/materials` | Upload a material using `title` and `file` form fields. |
+| GET | `/programs/:programId/materials/:materialId/download` | Download a material subject to access checks. |
+
+## File Uploads
+
+### CV Uploads
+
+- Form field: `cv`
+- Allowed extensions: `.pdf`, `.doc`, `.docx`
+- Maximum size: 5 MB
+- Storage directory: `UPLOAD_DIR`, or `uploads` by default
+
+### Program Materials
+
+- Form fields: `title` and `file`
+- Allowed extensions: `.pdf`, `.doc`, `.docx`, `.ppt`, `.pptx`, `.zip`
+- Maximum size: 20 MB
+- Upload permissions: `SUPERVISOR` and `ADMIN` in the shared controller
+
+Extension checks alone do not guarantee that a file's actual content is safe. Validate file content before deploying to production.
+
+## Testing with Postman
+
+1. Import `Sanad_Youth_Postman_Collection.json` if available.
+2. Configure `baseUrl` to match the running server and any global route prefix.
+3. Register a user and log in.
+4. Send the JWT with protected requests:
+
+   ```http
+   Authorization: Bearer YOUR_JWT_TOKEN
+   ```
+
+5. Test each role: `USER`, `SUPERVISOR`, and `ADMIN`.
+6. Test valid and invalid file uploads.
+7. Test duplicate applications, full programs, cancellation, and access restrictions.
+
+Some requests in the Postman collection may need to be adjusted to match the project's actual controllers and DTOs.
+
+## Important Business Rules
+
+- Prevent applications from exceeding a program's capacity.
+- Prevent the same user from applying to the same program more than once.
+- Restore a reserved seat when an application is rejected or cancelled, according to the application's state and business rules.
+- Handle concurrent applications for the last available seat using database transactions and appropriate concurrency protection.
+- Users should access only their own applications.
+- Supervisors should manage only their assigned programs.
+- Never expose passwords or sensitive information in API responses.
+
+These are project requirements; verify their implementation in the services, Prisma transactions, and tests.
+
+## Useful Commands
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run start:dev
+npm run build
+npm test
 ```
 
-## Run tests
+Check `package.json` to confirm which scripts are available.
 
-```bash
-# unit tests
-$ npm run test
+## Security Notes
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-This project is already instrumented. Create a free account at [observe.nestjs.com](https://observe.nestjs.com), add an application, and paste the generated app key and secret into the `ObserveModule.forRoot()` call in `src/app.module.ts`.
-
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Never commit `.env` or production secrets to Git.
+- Validate request data using DTOs and validation pipes.
+- Configure rate limiting for authentication and sensitive endpoints.
+- Verify authorization before reading, modifying, or downloading
