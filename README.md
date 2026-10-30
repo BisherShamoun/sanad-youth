@@ -10,7 +10,7 @@ included in this repository.
 
 ## Postman Collection
 
-[Download Postman Collection](./Sanad_Youth_Postman_Collection.json)
+[Download Postman Collection](.Sanad_Youth_Postman_Collection.json)
 
 ## User Roles
 
