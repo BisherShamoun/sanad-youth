@@ -1,28 +1,22 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { CurrentUser, Roles } from '../common/decorators/index.js';
-import { Role } from '../common/enums/index.js';
-import { CreateSupervisorDto } from './dto/create-supervisor.dto.js';
-import { ListUsersDto } from './dto/list-users.dto.js';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {} from '@prisma/client';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { UsersService } from './users.service.js';
-
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import { CreateSupervisorDto } from './dto/create-supervisor.dto.js';
+import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { UserRole } from '../../generated/prisma/enums.js';
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly users: UsersService) {}
-
-  @Get('me')
-  me(@CurrentUser('id') id: number) {
-    return this.users.me(id);
-  }
-
-  @Roles(Role.ADMIN)
-  @Post('supervisors')
-  createSupervisor(@Body() dto: CreateSupervisorDto) {
+  @Post('supervisors') @Roles(UserRole.ADMIN) createSupervisor(
+    @Body() dto: CreateSupervisorDto,
+  ) {
     return this.users.createSupervisor(dto);
   }
-
-  @Roles(Role.ADMIN)
-  @Get()
-  findAll(@Query() q: ListUsersDto) {
-    return this.users.findAll(q);
+  @Get('me') me(@CurrentUser('id') id: number) {
+    return this.users.getMe(id);
   }
 }

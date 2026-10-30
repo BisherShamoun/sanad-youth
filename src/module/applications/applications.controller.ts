@@ -25,7 +25,9 @@ import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { UserRole } from '../../generated/prisma/enums.js';
 import { ReviewApplicationDto } from './dto/review-application.dto.js';
+
 const uploadDir = process.env.UPLOAD_DIR || 'uploads';
+
 mkdirSync(uploadDir, { recursive: true });
 const cvOptions = {
   storage: diskStorage({
@@ -71,6 +73,7 @@ const cvOptions = {
 };
 @Controller('applications')
 @UseGuards(JwtAuthGuard)
+@Roles(UserRole.ADMIN)
 export class ApplicationsController {
   constructor(private readonly service: ApplicationsService) {}
   @Post(':programId')
