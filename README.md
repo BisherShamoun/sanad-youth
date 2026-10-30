@@ -228,7 +228,7 @@ prisma/
 
 uploads/              # Local storage for uploaded files
 .env.example          # Example environment configuration
-docker-compose.yml    # Local PostgreSQL service
+
 ```
 
 ## Getting Started
