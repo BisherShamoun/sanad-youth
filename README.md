@@ -10,7 +10,7 @@ included in this repository.
 
 ## Postman Collection
 
-[Download Postman Collection](./postman/postman_collection.json)
+[Download Postman Collection](./postman_collection.json)
 
 ## User Roles
 
