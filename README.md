@@ -8,7 +8,9 @@ The project is built with **NestJS**, **Prisma ORM**, and
 included in this repository.
 
 
+## Postman Collection
 
+[Download Postman Collection](./postman/postman_collection.json)
 
 ## User Roles
 
